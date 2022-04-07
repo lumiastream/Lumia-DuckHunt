@@ -46,16 +46,6 @@ jobs:
             - name: Build the App
               run: npm run build
 
-            # Deploy to AWS CloudFormation
-            - name: Deploy to AWS CloudFormation
-              uses: aws-actions/aws-cloudformation-github-deploy@v1
-              with:
-                  name: lumiastream-link-${{ steps.extract_branch.outputs.branch }}
-                  template: cloudfront.yml
-                  no-fail-on-empty-changeset: '1'
-                  parameter-overrides: >-
-                      DomainName=${{ steps.branch_check.outputs.domain }}
-
             - name: Deploy to AWS S3
               uses: jakejarvis/s3-sync-action@v0.5.1
               with:
