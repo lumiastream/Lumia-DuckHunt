@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+    DomainName:
+        Type: String
+        Default: duck.lumiastream.com
+    HostedZone:
+        Type: String
+        Default: Z05232731JRVF3PBDY484
+    ACMCertificateARN:
+        Type: String
+        Default: arn:aws:acm:us-east-1:213124556056:certificate/cb404a51-182c-42f6-89a2-933ee4b6d54d
+Resources:
+    S3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            AccessControl: PublicRead
+            BucketName: !Ref DomainName
+            WebsiteConfiguration:
+                IndexDocument: index.html
+                ErrorDocument: index.html
+
+    ReadPolicy:
+        Type: 'AWS::S3::BucketPolicy'
+        Properties:
+            Bucket: !Ref S3Bucket
+            PolicyDocument:
+                Statement:
+                    - Action: 's3:GetObject'
+                      Effect: Allow
+                      Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                      Principal:
+                          '*'
+                          #CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+
+    CloudFrontOriginAccessIdentity:
+        Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+        Properties:
+            CloudFrontOriginAccessIdentityConfig:
+                Comment: !Ref S3Bucket
+
+    CloudFrontDistribution:
+        Type: AWS::CloudFront::Distribution
+        Properties:
+            DistributionConfig:
+                Origins:
+                    - DomainName: !Join ['.', [!Ref DomainName, 's3-website-us-east-1.amazonaws.com']]
+                      Id: S3Origin
+                      CustomOriginConfig:
+                          HTTPSPort: '443'
+                          HTTPPort: 80
+                          OriginProtocolPolicy: 'http-only'
+                          OriginReadTimeout: 30
+                          OriginSSLProtocols:
+                              - TLSv1.2
+                      #CustomOriginConfig:
+                      #OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+                Enabled: 'true'
+                HttpVersion: http2
+                Comment: LumiaStream DuckHunt
+                DefaultRootObject: index.html
+                Aliases:
+                    - !Ref DomainName
+                DefaultCacheBehavior:
+                    AllowedMethods:
+                        - GET
+                        - HEAD
+                    TargetOriginId: S3Origin
+                    ForwardedValues:
+                        QueryString: 'false'
+                        Cookies:
+                            Forward: none
+                    ViewerProtocolPolicy: redirect-to-https
+                    CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+                PriceClass: PriceClass_200
+                ViewerCertificate:
+                    AcmCertificateArn: !Ref ACMCertificateARN
+                    MinimumProtocolVersion: TLSv1.2_2021
+                    SslSupportMethod: sni-only
+
+    WebsiteDNSName:
+        Type: 'AWS::Route53::RecordSetGroup'
+        Properties:
+            HostedZoneId: !Ref HostedZone
+            RecordSets:
+                - Name: !Ref DomainName
+                  Type: A
+                  AliasTarget:
+                      HostedZoneId: Z2FDTNDATAQYW2 # hostedzone id for cloudfront
+                      DNSName: !GetAtt
+                          - CloudFrontDistribution
+                          - DomainName
