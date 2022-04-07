@@ -259,7 +259,6 @@ class Game {
             switch (gamesGlowKey) {
                 case GamesGlowVirtualLightsKeys.SKY_COLOR:
                     this.renderer.backgroundColor = rgbToHex(value.color);
-                    this.bullets++;
                     break;
             }
         });
