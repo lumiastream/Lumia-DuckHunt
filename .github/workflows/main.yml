@@ -57,7 +57,7 @@ jobs:
                   # note: use IAM role with limited role for below access-key-id and secret-access-key
                   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACTIONS_ACCESS }} # Access Key ID
                   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACTIONS_SECRET }} # Access Secret Key
-                  SOURCE_DIR: 'web-build' # build folder
+                  SOURCE_DIR: 'dist' # build folder
 
             - name: Invalidate Cloudfront Cache
               uses: chetan/invalidate-cloudfront-action@master
