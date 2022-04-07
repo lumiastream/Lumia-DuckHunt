@@ -47,5 +47,9 @@
     "tween.js": "^16.6.0",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.9.1"
+  },
+  "dependencies": {
+    "@lumiastream/sdk": "0.1.5",
+    "eventemitter3": "^2.0.3"
   }
 }
