@@ -3,7 +3,6 @@ import { remove as _remove } from 'lodash/array';
 import levels from '../data/levels.json';
 import Stage from './Stage';
 import sound from './Sound';
-import levelCreator from '../libs/levelCreator.js';
 import utils from '../libs/utils';
 import { GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
 
@@ -274,7 +273,6 @@ class Game {
         });
 
         this.scaleToWindow();
-        this.addLinkToLevelCreator();
         this.addPauseLink();
         this.addMuteLink();
         this.addFullscreenLink();
@@ -318,18 +316,6 @@ class Game {
         this.stage.hud.pauseLink = 'pause (p)';
     }
 
-    addLinkToLevelCreator() {
-        this.stage.hud.createTextBox('levelCreatorLink', {
-            style: BOTTOM_LINK_STYLE,
-            location: Stage.levelCreatorLinkBoxLocation(),
-            anchor: {
-                x: 1,
-                y: 1,
-            },
-        });
-        this.stage.hud.levelCreatorLink = 'level creator (c)';
-    }
-
     bindEvents() {
         window.addEventListener('resize', this.scaleToWindow.bind(this));
 
@@ -344,10 +330,6 @@ class Game {
 
             if (event.key === 'm') {
                 this.mute();
-            }
-
-            if (event.key === 'c') {
-                this.openLevelCreator();
             }
 
             if (event.key === 'f') {
@@ -417,12 +399,7 @@ class Game {
     }
 
     startLevel() {
-        if (levelCreator.urlContainsLevelData()) {
-            this.level = levelCreator.parseLevelQueryString();
-            this.levelIndex = this.levels.length - 1;
-        } else {
-            this.level = this.levels[this.levelIndex];
-        }
+        this.level = this.levels[this.levelIndex];
 
         this.maxScore += this.level.waves * this.level.ducks * this.level.pointsPerDuck;
         this.ducksShot = 0;
@@ -562,14 +539,6 @@ class Game {
         this.stage.hud.replayButton = replayText + ' Play Again?';
     }
 
-    openLevelCreator() {
-        // If they didn't pause the game, pause it for them
-        if (!this.paused) {
-            this.pause();
-        }
-        window.open('/creator.html', '_blank');
-    }
-
     handleClick(event) {
         const clickPoint = {
             x: event.data.global.x,
@@ -588,11 +557,6 @@ class Game {
 
         if (this.stage.clickedFullscreenLink(clickPoint)) {
             this.fullscreen();
-            return;
-        }
-
-        if (this.stage.clickedLevelCreatorLink(clickPoint)) {
-            this.openLevelCreator();
             return;
         }
 
