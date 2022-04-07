@@ -50,7 +50,7 @@ export class LumiaSdkManager extends EventEmitter {
                 LumiaSdkManager.sdk.on('event', function (data) {
                     if (data.type === LumiaEventTypes.CHAT) {
                         console.log('New chat message', data);
-                    } else if (data.data?.gamesGlowId !== appName) {
+                    } else if (data.data && data.data.gamesGlowId !== appName) {
                         // Do not listen to any events that are not meant for this game
                         return;
                     }
