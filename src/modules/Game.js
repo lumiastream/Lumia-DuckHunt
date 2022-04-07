@@ -4,7 +4,7 @@ import levels from '../data/levels.json';
 import Stage from './Stage';
 import sound from './Sound';
 import utils from '../libs/utils';
-import { GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
+import { GamesGlowAlertKeys, GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
 
 const BLUE_SKY_COLOR = 0x64b0ff;
 const PINK_SKY_COLOR = 0xfbb4d4;
@@ -244,7 +244,14 @@ class Game {
                     this.bullets += value ? value : 1;
                     break;
                 case GamesGlowCommandKeys.TAKE_BULLET:
-                    this.bullets -= value ? value : 1;
+                    const subtractor = value ? value : 1;
+
+                    // Make sure you can't take all bullets away
+                    if (this.bullets - subtractor < 1) {
+                        this.bullets = 1;
+                    } else {
+                        this.bullets -= value ? value : 1;
+                    }
                     break;
                 case GamesGlowCommandKeys.SKY_COLOR:
                     this.renderer.backgroundColor = value;
@@ -476,10 +483,13 @@ class Game {
         this.levelIndex++;
         if (!this.levelWon()) {
             this.loss();
+            LumiaSdkManager.SendAlert({ gamesGlowKey: GamesGlowAlertKeys.LOST });
         } else if (this.levelIndex < this.levels.length) {
             this.startLevel();
+            LumiaSdkManager.SendAlert({ gamesGlowKey: GamesGlowAlertKeys.LEVEL_UP, value: this.levelIndex });
         } else {
             this.win();
+            LumiaSdkManager.SendAlert({ gamesGlowKey: GamesGlowAlertKeys.LEVEL_UP, value: this.levelIndex });
         }
     }
 
@@ -572,7 +582,12 @@ class Game {
     }
 
     updateScore(ducksShot) {
-        this.ducksShot += ducksShot;
+        const newDucksShot = this.ducksShot + ducksShot;
+        if (this.ducksShot < newDucksShot) {
+            LumiaSdkManager.SendAlert({ gamesGlowKey: GamesGlowAlertKeys.KILL, value: newDucksShot });
+        }
+        LumiaSdkManager.SendAlert({ gamesGlowKey: GamesGlowAlertKeys.SCORE, value: this.score });
+        this.ducksShot = newDucksShot;
         this.ducksShotThisWave += ducksShot;
         this.score += ducksShot * this.level.pointsPerDuck;
         LumiaSdkManager.SendVariable({ gamesGlowKey: GamesGlowVariableKeys.KILLS, value: this.ducksShot });

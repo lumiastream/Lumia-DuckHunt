@@ -5,26 +5,24 @@ const token = 'ls_duckhunt';
 const appName = 'duckhunt_lumia';
 
 export const GamesGlowAlertKeys = {
-    LIVES: 'duckhunt_lumia__var_lives',
-    KILLS: 'duckhunt_lumia__var_kills',
-    SCORE: 'duckhunt_lumia__var_score',
+    LEVEL_UP: 'duckhunt_lumia__level_up',
+    KILL: 'duckhunt_lumia__kill',
+    LOST: 'duckhunt_lumia__lost',
 };
 
 export const GamesGlowCommandKeys = {
-    GIVE_BULLET: 'duckhunt_lumia__var_lives',
-    TAKE_BULLET: 'duckhunt_lumia__var_take_bullet',
+    GIVE_BULLET: 'duckhunt_lumia__give_bullet',
+    TAKE_BULLET: 'duckhunt_lumia__take_bullet',
     SKY_COLOR: 'duckhunt_lumia__sky_color',
-    COLOR: 'duckhunt_lumia__color',
 };
 
 export const GamesGlowVariableKeys = {
-    LIVES: 'duckhunt_lumia__var_lives',
     KILLS: 'duckhunt_lumia__var_kills',
     SCORE: 'duckhunt_lumia__var_score',
 };
 
 export const GamesGlowVirtualLightsKeys = {
-    SKY_COLOR: 'duckhunt_lumia__sky_color',
+    SKY_COLOR: 'duckhunt_lumia__light_sky_color',
 };
 
 export class LumiaSdkManager extends EventEmitter {
