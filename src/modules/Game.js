@@ -6,7 +6,7 @@ import sound from './Sound';
 import utils from '../libs/utils';
 import { GamesGlowAlertKeys, GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
 
-const BLUE_SKY_COLOR = 0x64b0ff;
+let MAIN_SKY_COLOR = 0x64b0ff;
 const PINK_SKY_COLOR = 0xfbb4d4;
 const SUCCESS_RATIO = 0.6;
 const BOTTOM_LINK_STYLE = {
@@ -27,7 +27,7 @@ class Game {
         this.spritesheet = opts.spritesheet;
         this.loader = loader;
         this.renderer = autoDetectRenderer(window.innerWidth, window.innerHeight, {
-            backgroundColor: BLUE_SKY_COLOR,
+            backgroundColor: MAIN_SKY_COLOR,
         });
         this.levelIndex = 0;
         this.maxScore = 0;
@@ -254,9 +254,11 @@ class Game {
                     }
                     break;
                 case GamesGlowCommandKeys.SKY_COLOR:
+                    MAIN_SKY_COLOR = value;
                     this.renderer.backgroundColor = value;
                     break;
                 case GamesGlowCommandKeys.COLOR:
+                    MAIN_SKY_COLOR = value;
                     this.renderer.backgroundColor = value;
                     break;
             }
@@ -265,6 +267,7 @@ class Game {
         LumiaSdkManager.getInstance().on('virtuallight', ({ gamesGlowKey, value }) => {
             switch (gamesGlowKey) {
                 case GamesGlowVirtualLightsKeys.SKY_COLOR:
+                    MAIN_SKY_COLOR = rgbToHex(value.color);
                     this.renderer.backgroundColor = rgbToHex(value.color);
                     break;
             }
@@ -445,7 +448,7 @@ class Game {
     }
 
     goToNextWave() {
-        this.renderer.backgroundColor = BLUE_SKY_COLOR;
+        this.renderer.backgroundColor = MAIN_SKY_COLOR;
         if (this.level.waves === this.wave) {
             this.endLevel();
         } else {

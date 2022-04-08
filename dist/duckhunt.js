@@ -37494,7 +37494,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var BLUE_SKY_COLOR = 0x64b0ff;
+var MAIN_SKY_COLOR = 0x64b0ff;
 var PINK_SKY_COLOR = 0xfbb4d4;
 var SUCCESS_RATIO = 0.6;
 var BOTTOM_LINK_STYLE = {
@@ -37517,7 +37517,7 @@ var Game = function () {
         this.spritesheet = opts.spritesheet;
         this.loader = _pixi.loader;
         this.renderer = (0, _pixi.autoDetectRenderer)(window.innerWidth, window.innerHeight, {
-            backgroundColor: BLUE_SKY_COLOR
+            backgroundColor: MAIN_SKY_COLOR
         });
         this.levelIndex = 0;
         this.maxScore = 0;
@@ -37552,12 +37552,21 @@ var Game = function () {
                         _this.bullets += value ? value : 1;
                         break;
                     case _LumiaSdk.GamesGlowCommandKeys.TAKE_BULLET:
-                        _this.bullets -= value ? value : 1;
+                        var subtractor = value ? value : 1;
+
+                        // Make sure you can't take all bullets away
+                        if (_this.bullets - subtractor < 1) {
+                            _this.bullets = 1;
+                        } else {
+                            _this.bullets -= value ? value : 1;
+                        }
                         break;
                     case _LumiaSdk.GamesGlowCommandKeys.SKY_COLOR:
+                        MAIN_SKY_COLOR = value;
                         _this.renderer.backgroundColor = value;
                         break;
                     case _LumiaSdk.GamesGlowCommandKeys.COLOR:
+                        MAIN_SKY_COLOR = value;
                         _this.renderer.backgroundColor = value;
                         break;
                 }
@@ -37569,8 +37578,8 @@ var Game = function () {
 
                 switch (gamesGlowKey) {
                     case _LumiaSdk.GamesGlowVirtualLightsKeys.SKY_COLOR:
+                        MAIN_SKY_COLOR = (0, _LumiaSdk.rgbToHex)(value.color);
                         _this.renderer.backgroundColor = (0, _LumiaSdk.rgbToHex)(value.color);
-                        _this.bullets++;
                         break;
                 }
             });
@@ -37771,7 +37780,7 @@ var Game = function () {
     }, {
         key: 'goToNextWave',
         value: function goToNextWave() {
-            this.renderer.backgroundColor = BLUE_SKY_COLOR;
+            this.renderer.backgroundColor = MAIN_SKY_COLOR;
             if (this.level.waves === this.wave) {
                 this.endLevel();
             } else {
@@ -37815,10 +37824,13 @@ var Game = function () {
             this.levelIndex++;
             if (!this.levelWon()) {
                 this.loss();
+                _LumiaSdk.LumiaSdkManager.SendAlert({ gamesGlowKey: _LumiaSdk.GamesGlowAlertKeys.LOST });
             } else if (this.levelIndex < this.levels.length) {
                 this.startLevel();
+                _LumiaSdk.LumiaSdkManager.SendAlert({ gamesGlowKey: _LumiaSdk.GamesGlowAlertKeys.LEVEL_UP, value: this.levelIndex });
             } else {
                 this.win();
+                _LumiaSdk.LumiaSdkManager.SendAlert({ gamesGlowKey: _LumiaSdk.GamesGlowAlertKeys.LEVEL_UP, value: this.levelIndex });
             }
         }
     }, {
@@ -37918,7 +37930,12 @@ var Game = function () {
     }, {
         key: 'updateScore',
         value: function updateScore(ducksShot) {
-            this.ducksShot += ducksShot;
+            var newDucksShot = this.ducksShot + ducksShot;
+            if (this.ducksShot < newDucksShot) {
+                _LumiaSdk.LumiaSdkManager.SendAlert({ gamesGlowKey: _LumiaSdk.GamesGlowAlertKeys.KILL, value: newDucksShot });
+            }
+            _LumiaSdk.LumiaSdkManager.SendAlert({ gamesGlowKey: _LumiaSdk.GamesGlowAlertKeys.SCORE, value: this.score });
+            this.ducksShot = newDucksShot;
             this.ducksShotThisWave += ducksShot;
             this.score += ducksShot * this.level.pointsPerDuck;
             _LumiaSdk.LumiaSdkManager.SendVariable({ gamesGlowKey: _LumiaSdk.GamesGlowVariableKeys.KILLS, value: this.ducksShot });
@@ -39458,26 +39475,24 @@ var token = 'ls_duckhunt';
 var appName = 'duckhunt_lumia';
 
 var GamesGlowAlertKeys = exports.GamesGlowAlertKeys = {
-    LIVES: 'duckhunt_lumia__var_lives',
-    KILLS: 'duckhunt_lumia__var_kills',
-    SCORE: 'duckhunt_lumia__var_score'
+    LEVEL_UP: 'duckhunt_lumia__level_up',
+    KILL: 'duckhunt_lumia__kill',
+    LOST: 'duckhunt_lumia__lost'
 };
 
 var GamesGlowCommandKeys = exports.GamesGlowCommandKeys = {
-    GIVE_BULLET: 'duckhunt_lumia__var_lives',
-    TAKE_BULLET: 'duckhunt_lumia__var_take_bullet',
-    SKY_COLOR: 'duckhunt_lumia__sky_color',
-    COLOR: 'duckhunt_lumia__color'
+    GIVE_BULLET: 'duckhunt_lumia__give_bullet',
+    TAKE_BULLET: 'duckhunt_lumia__take_bullet',
+    SKY_COLOR: 'duckhunt_lumia__sky_color'
 };
 
 var GamesGlowVariableKeys = exports.GamesGlowVariableKeys = {
-    LIVES: 'duckhunt_lumia__var_lives',
     KILLS: 'duckhunt_lumia__var_kills',
     SCORE: 'duckhunt_lumia__var_score'
 };
 
 var GamesGlowVirtualLightsKeys = exports.GamesGlowVirtualLightsKeys = {
-    SKY_COLOR: 'duckhunt_lumia__sky_color'
+    SKY_COLOR: 'duckhunt_lumia__light_sky_color'
 };
 
 var LumiaSdkManager = exports.LumiaSdkManager = function (_EventEmitter) {
