@@ -4,7 +4,7 @@ import levels from '../data/levels.json';
 import Stage from './Stage';
 import sound from './Sound';
 import utils from '../libs/utils';
-import { GamesGlowAlertKeys, GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
+import { GamesGlowAlertKeys, GamesGlowCommandKeys, GamesGlowVariableKeys, GamesGlowVirtualLightsKeys, HexStrToNumber, LumiaSdkManager, rgbToHex } from '../modules/LumiaSdk';
 
 let MAIN_SKY_COLOR = 0x64b0ff;
 const PINK_SKY_COLOR = 0xfbb4d4;
@@ -253,14 +253,18 @@ class Game {
                         this.bullets -= value ? value : 1;
                     }
                     break;
-                case GamesGlowCommandKeys.SKY_COLOR:
-                    MAIN_SKY_COLOR = value;
-                    this.renderer.backgroundColor = value;
+                case GamesGlowCommandKeys.SKY_COLOR: {
+                    const color = HexStrToNumber(value);
+                    MAIN_SKY_COLOR = color;
+                    this.renderer.backgroundColor = color;
                     break;
-                case GamesGlowCommandKeys.COLOR:
-                    MAIN_SKY_COLOR = value;
-                    this.renderer.backgroundColor = value;
+                }
+                case GamesGlowCommandKeys.COLOR: {
+                    const color = HexStrToNumber(value);
+                    MAIN_SKY_COLOR = color;
+                    this.renderer.backgroundColor = color;
                     break;
+                }
             }
         });
 

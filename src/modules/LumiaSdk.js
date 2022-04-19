@@ -90,3 +90,7 @@ export class LumiaSdkManager extends EventEmitter {
 export const rgbToHex = (colorObj) => {
     return (1 << 24) + (colorObj.r << 16) + (colorObj.g << 8) + colorObj.b;
 };
+
+export const HexStrToNumber = (hexStr) => {
+    return parseInt(hexStr.replace('#', ''), 16);
+};

@@ -37562,13 +37562,19 @@ var Game = function () {
                         }
                         break;
                     case _LumiaSdk.GamesGlowCommandKeys.SKY_COLOR:
-                        MAIN_SKY_COLOR = value;
-                        _this.renderer.backgroundColor = value;
-                        break;
+                        {
+                            var color = (0, _LumiaSdk.HexStrToNumber)(value);
+                            MAIN_SKY_COLOR = color;
+                            _this.renderer.backgroundColor = color;
+                            break;
+                        }
                     case _LumiaSdk.GamesGlowCommandKeys.COLOR:
-                        MAIN_SKY_COLOR = value;
-                        _this.renderer.backgroundColor = value;
-                        break;
+                        {
+                            var _color = (0, _LumiaSdk.HexStrToNumber)(value);
+                            MAIN_SKY_COLOR = _color;
+                            _this.renderer.backgroundColor = _color;
+                            break;
+                        }
                 }
             });
 
@@ -39578,6 +39584,10 @@ var LumiaSdkManager = exports.LumiaSdkManager = function (_EventEmitter) {
 
 var rgbToHex = exports.rgbToHex = function rgbToHex(colorObj) {
     return (1 << 24) + (colorObj.r << 16) + (colorObj.g << 8) + colorObj.b;
+};
+
+var HexStrToNumber = exports.HexStrToNumber = function HexStrToNumber(hexStr) {
+    return parseInt(hexStr.replace('#', ''), 16);
 };
 
 /***/ }),
